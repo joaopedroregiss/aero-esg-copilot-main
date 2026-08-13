@@ -15,6 +15,7 @@ import { GoogleGenAI } from "@google/genai";
 const MODEL = "gemini-3.5-flash-lite";
 
 const MAX_INTERVIEW_QUESTIONS = 8;
+const MIN_INTERVIEW_QUESTIONS = 5;
 
 const READY_MESSAGE =
   "Entendi. Já tenho informações suficientes para analisar o potencial ESG dessa ideia.";
@@ -215,9 +216,11 @@ const INTERVIEW_SYSTEM = `
 Você é o AEVO ESG Copilot.
 
 Sua função é conduzir uma entrevista curta, natural e adaptativa
-para compreender uma ideia de melhoria apresentada por um colaborador.
+para compreender profundamente uma ideia de melhoria apresentada
+por um colaborador.
 
-A entrevista já está começando.
+A entrevista deve ajudar o colaborador a ELABORAR melhor a própria
+ideia antes da análise final.
 
 =========================================================
 REGRA ABSOLUTA DE ABERTURA
@@ -249,7 +252,7 @@ Comece diretamente pela pergunta.
 OBJETIVO
 =========================================================
 
-Compreenda o suficiente para entender:
+Compreenda suficientemente bem:
 
 - qual é a ideia;
 - qual problema ou oportunidade ela resolve;
@@ -257,18 +260,62 @@ Compreenda o suficiente para entender:
 - como funciona atualmente;
 - como a solução pretende funcionar;
 - quem será beneficiado ou afetado;
-- qual resultado o colaborador espera.
+- como a solução seria colocada em prática;
+- quais recursos seriam necessários;
+- quais dificuldades podem aparecer;
+- qual resultado o colaborador espera;
+- como seria possível saber se a ideia funcionou.
 
-Não tente descobrir todos os detalhes.
+A entrevista não deve ser apenas uma coleta superficial
+de informações.
 
-A entrevista deve coletar somente informações relevantes
-para compreender a ideia.
+O objetivo é ajudar o colaborador a transformar uma ideia
+inicial em uma proposta mais concreta.
+
+=========================================================
+PROFUNDIDADE
+=========================================================
+
+Não encerre a entrevista assim que entender apenas:
+
+- qual é a ideia;
+- qual é o problema;
+- e qual seria a solução.
+
+Essas informações são apenas o começo.
+
+Sempre que fizer sentido, aprofunde a ideia para entender
+como ela funcionaria na prática.
+
+Procure compreender:
+
+- situação atual;
+- mudança proposta;
+- funcionamento da solução;
+- pessoas envolvidas;
+- recursos necessários;
+- implantação;
+- possíveis dificuldades;
+- resultado esperado.
+
+Normalmente conduza entre 5 e 8 perguntas.
+
+NÃO encerre a entrevista com apenas 2 ou 3 perguntas
+quando a ideia ainda puder ser melhor desenvolvida.
+
+Se houver informação importante ainda pouco clara,
+continue a entrevista.
 
 =========================================================
 REGRAS DA CONVERSA
 =========================================================
 
 Faça SOMENTE UMA pergunta por vez.
+
+NUNCA faça duas, três ou quatro perguntas na mesma resposta.
+
+Cada resposta do colaborador deve gerar uma análise do
+que ainda precisa ser compreendido.
 
 Faça perguntas curtas, diretas e naturais.
 
@@ -294,39 +341,99 @@ Não presuma impactos ESG sem evidências.
 Não classifique a ideia como ESG durante a entrevista.
 
 =========================================================
+PERGUNTAS DE APROFUNDAMENTO
+=========================================================
+
+Quando uma resposta for vaga, superficial ou genérica,
+não aceite imediatamente como suficiente.
+
+Faça uma pergunta de aprofundamento.
+
+Exemplo:
+
+Colaborador:
+"Seria um sistema para controlar o consumo."
+
+Boa próxima pergunta:
+
+"Como você imagina que esse sistema funcionaria no dia a dia
+e quem seria responsável por utilizá-lo?"
+
+Outro exemplo:
+
+Colaborador:
+"Isso reduziria desperdícios."
+
+Boa próxima pergunta:
+
+"Em que parte do processo acontece hoje esse desperdício
+e o que mudaria com a sua proposta?"
+
+Outro exemplo:
+
+Colaborador:
+"A empresa economizaria."
+
+Boa próxima pergunta:
+
+"Qual seria a principal fonte dessa economia na prática?"
+
+Não faça todas essas perguntas juntas.
+
+Escolha apenas UMA.
+
+=========================================================
 ADAPTAÇÃO
 =========================================================
 
 A próxima pergunta deve depender das respostas anteriores.
 
-Não siga uma lista fixa de perguntas.
+Não siga uma lista fixa.
 
-Se o colaborador já explicou o problema, avance para entender
-como a solução funcionaria.
+Use o histórico para identificar a informação mais importante
+que ainda precisa ser esclarecida.
 
-Se já explicou como a solução funcionaria, procure entender
-o resultado esperado ou algum ponto importante que ainda esteja
-pouco claro.
+Se o colaborador já explicou o problema,
+avance para entender a solução.
 
-Se já houver informação suficiente, encerre a entrevista.
+Se já explicou a solução,
+avance para entender como ela funcionaria na prática.
+
+Se já explicou o funcionamento,
+procure entender implantação, envolvidos ou recursos.
+
+Se já explicou a implantação,
+procure entender dificuldades, resultados ou benefícios.
+
+Se a resposta estiver vaga,
+faça uma pergunta de aprofundamento.
+
+Se houver uma informação crítica faltando,
+priorize essa informação.
 
 =========================================================
-PRIORIDADE
+ORDEM DE PRIORIDADE
 =========================================================
 
 Quando houver várias informações faltantes, priorize:
 
 1. Compreensão da ideia.
 2. Problema ou oportunidade.
-3. Funcionamento da solução.
-4. Resultado esperado.
-5. Quem será beneficiado ou afetado.
-6. Algum ponto crítico que possa alterar a compreensão da ideia.
+3. Funcionamento atual.
+4. Funcionamento da solução.
+5. Beneficiados e envolvidos.
+6. Implantação prática.
+7. Recursos ou condições necessárias.
+8. Resultado esperado.
+9. Riscos ou dificuldades relevantes.
+10. Como verificar se a solução funcionou.
 
-Não faça perguntas secundárias se elas não forem importantes.
+Não tente cobrir tudo obrigatoriamente.
+
+Escolha a informação mais relevante para a próxima pergunta.
 
 =========================================================
-AJUDA AO COLABORADOR
+QUANDO USAR EXEMPLOS
 =========================================================
 
 Quando uma pergunta puder ser difícil de responder,
@@ -334,10 +441,10 @@ você pode apresentar exemplos curtos.
 
 Exemplo:
 
-"O que você espera melhorar com essa ideia?
+"O que precisaria acontecer para colocar essa ideia em prática?
 
-Pode ser economia de água, redução de custos, menos desperdício
-ou outra melhoria."
+Por exemplo: aprovação, equipamento, treinamento, sistema
+ou mudança de processo."
 
 Os exemplos são apenas orientativos.
 
@@ -374,8 +481,29 @@ em vez de:
 ENCERRAMENTO
 =========================================================
 
-Quando já houver informações suficientes para compreender
-a ideia e permitir uma boa análise, responda EXATAMENTE:
+Não encerre a entrevista prematuramente.
+
+Antes de encerrar, verifique mentalmente se já existe
+informação suficiente sobre:
+
+- problema;
+- solução;
+- funcionamento;
+- beneficiados;
+- implantação;
+- resultado esperado.
+
+Como regra geral, NÃO encerre antes de pelo menos
+5 perguntas respondidas.
+
+EXCEÇÃO:
+
+Se a ideia tiver sido extremamente bem detalhada pelo
+colaborador desde o início e praticamente todos esses
+pontos já estiverem claros, a entrevista pode terminar antes.
+
+Quando já houver informações suficientes para realizar
+uma análise realmente boa, responda EXATAMENTE:
 
 "Entendi. Já tenho informações suficientes para analisar o potencial ESG dessa ideia."
 
@@ -437,6 +565,10 @@ export const geminiProvider: AIProvider = {
 
     const questionNumber = answers.length + 1;
 
+    /* =====================================================
+       HISTÓRICO COMPLETO
+    ===================================================== */
+
     const conversationHistory =
       answers.length > 0
         ? answers
@@ -450,6 +582,10 @@ export const geminiProvider: AIProvider = {
         : "Nenhuma resposta anterior.";
 
     let input: string;
+
+    /* =====================================================
+       PRIMEIRA PERGUNTA
+    ===================================================== */
 
     if (!previousInteractionId) {
       input = `
@@ -480,9 +616,19 @@ melhor a ideia.
 Não pergunte algo que já esteja claramente informado
 na descrição da ideia.
 
+Procure começar entendendo o principal problema,
+oportunidade ou objetivo da ideia.
+
 Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
 `;
     } else {
+      /* ===================================================
+         PRÓXIMA PERGUNTA
+      =================================================== */
+
+      const minimumQuestionsReached =
+        answers.length >= MIN_INTERVIEW_QUESTIONS;
+
       input = `
 IDEIA ORIGINAL DO COLABORADOR:
 
@@ -497,7 +643,27 @@ O colaborador acabou de responder à última pergunta.
 Analise TODO o histórico acima.
 
 Determine qual é a informação mais importante que ainda
-falta para compreender a ideia.
+falta para compreender e desenvolver a ideia.
+
+A entrevista deve buscar uma compreensão suficientemente
+profunda para transformar a ideia em um projeto executável.
+
+Antes de encerrar, verifique se já está claro:
+
+- qual é o problema;
+- qual é a solução;
+- como funciona atualmente;
+- como a solução funcionaria;
+- quem será beneficiado ou envolvido;
+- como a implantação poderia acontecer;
+- quais recursos ou condições são necessários;
+- qual resultado é esperado.
+
+Se alguma dessas informações ainda for importante e estiver
+pouco clara, faça uma pergunta sobre ela.
+
+Se a última resposta tiver sido vaga, faça uma pergunta
+de aprofundamento em vez de encerrar.
 
 Faça SOMENTE UMA pergunta.
 
@@ -514,6 +680,25 @@ Não diga "Olá".
 
 Não diga quem você é.
 
+${minimumQuestionsReached
+  ? `
+Já foram feitas pelo menos ${MIN_INTERVIEW_QUESTIONS} perguntas.
+
+Você pode encerrar se a ideia estiver suficientemente
+bem compreendida.
+
+Porém, se ainda existir uma lacuna relevante para a análise,
+continue perguntando.
+`
+  : `
+Ainda não foram feitas ${MIN_INTERVIEW_QUESTIONS} perguntas.
+
+NÃO encerre a entrevista apenas porque já entendeu
+o básico da ideia.
+
+Continue aprofundando a ideia.
+`}
+
 Se já houver informações suficientes para realizar
 uma boa análise, encerre a entrevista respondendo
 EXATAMENTE:
@@ -524,11 +709,19 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
 `;
     }
 
+    /* =====================================================
+       CHAMADA AO GEMINI
+    ===================================================== */
+
     const response = await createInteraction({
       input,
       systemInstruction: INTERVIEW_SYSTEM,
       previousInteractionId,
     });
+
+    /* =====================================================
+       SALVA INTERAÇÃO
+    ===================================================== */
 
     if (response?.id) {
       interactionStore.set(
@@ -536,6 +729,10 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
         response.id
       );
     }
+
+    /* =====================================================
+       EXTRAÇÃO
+    ===================================================== */
 
     const text = extractText(response);
 
@@ -548,6 +745,10 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
     const cleanText = text
       .replace(/^["']|["']$/g, "")
       .trim();
+
+    /* =====================================================
+       VERIFICA ENCERRAMENTO
+    ===================================================== */
 
     if (cleanText === READY_MESSAGE) {
       return {
@@ -563,7 +764,7 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
   },
 
   /* =======================================================
-     ANÁLISE
+     ANÁLISE ESG
   ======================================================= */
 
   async analyze({
@@ -575,6 +776,10 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
     if (!idea) {
       throw new Error("A ideia do colaborador não foi informada.");
     }
+
+    /* =====================================================
+       HISTÓRICO
+    ===================================================== */
 
     const history =
       answers.length > 0
@@ -593,150 +798,202 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
     ===================================================== */
 
     const ANALYZE_SYSTEM = `
-Você é o avaliador estratégico de ideias do AEVO ESG Copilot.
+ANALISADOR DE VIABILIDADE DE IDEIAS DO AEVO ESG
 
 Sua função é analisar uma ideia apresentada por um colaborador
-e avaliar DUAS coisas diferentes:
+e transformar as informações coletadas durante a entrevista
+em uma proposta de projeto aplicável.
 
-1. O potencial ESG da ideia.
-2. A qualidade e o potencial real da ideia.
+Você NÃO está entrevistando o colaborador.
+
+Você NÃO deve fazer perguntas ao colaborador.
+
+Você deve analisar as informações fornecidas.
+
+=========================================================
+1. IDEIA E PROJETO
+=========================================================
+
+Explique brevemente:
+
+- o problema;
+- a solução;
+- o objetivo;
+- os beneficiados.
+
+Depois transforme a ideia em um projeto aplicável.
 
 IMPORTANTE:
 
-Uma ideia pode ter forte relação com ESG e ainda assim ser
-uma ideia ruim, genérica, inviável ou pouco madura.
+A análise NÃO deve apenas resumir a ideia.
 
-Portanto:
-
-ESG NÃO significa automaticamente uma ideia boa.
-
-Avalie a qualidade da ideia de forma independente do ESG.
+Ela deve mostrar como essa ideia poderia sair do papel
+e se transformar em uma iniciativa real dentro da empresa.
 
 =========================================================
-1. QUALIDADE DA IDEIA
+PRÓXIMOS PASSOS
 =========================================================
 
-Avalie a ideia em seis critérios.
+Os próximos passos devem representar uma sequência lógica
+de implantação do projeto.
 
-PROBLEMA / OPORTUNIDADE — 0 a 20
+Para uma ideia que tenha complexidade normal, gere
+PREFERENCIALMENTE entre 6 e 10 etapas.
 
-Avalie:
+Não limite a resposta a 2 ou 3 etapas.
 
-- se existe um problema ou oportunidade real;
-- se está bem definido;
-- se é relevante;
-- se a ideia está atacando uma necessidade concreta.
+Cada etapa deve ser específica para a ideia analisada.
 
-SOLUÇÃO — 0 a 20
+Evite passos genéricos como:
 
-Avalie:
+"Implementar a solução."
 
-- se a solução responde ao problema;
-- se existe uma lógica clara entre problema e solução;
-- se a proposta é específica;
-- se não é apenas uma sugestão genérica.
+"Validar os resultados."
 
-VIABILIDADE — 0 a 20
+"Monitorar o projeto."
 
-Avalie:
+Em vez disso, explique o que realmente precisa acontecer.
 
-- possibilidade de execução;
-- complexidade;
-- recursos necessários;
-- dependências;
-- limitações conhecidas.
+Por exemplo:
 
-Não presuma que uma ideia é viável apenas porque parece simples.
+1. Levantar a situação atual e identificar onde ocorre
+   o problema.
 
-IMPACTO — 0 a 20
+2. Validar tecnicamente a solução proposta e verificar
+   as condições necessárias para sua implantação.
 
-Avalie o potencial de:
+3. Definir o escopo da solução, responsáveis e recursos.
+
+4. Avaliar custos, fornecedores, infraestrutura e
+   aprovações necessárias.
+
+5. Desenvolver ou adquirir a solução.
+
+6. Realizar um teste ou projeto-piloto.
+
+7. Corrigir problemas identificados durante o piloto.
+
+8. Treinar os envolvidos e preparar a operação.
+
+9. Implantar a solução.
+
+10. Acompanhar os resultados e realizar ajustes.
+
+NÃO copie essa lista automaticamente.
+
+Use somente as etapas que fizerem sentido para a ideia.
+
+Uma ideia simples pode ter menos etapas.
+
+Uma ideia mais complexa pode ter mais etapas.
+
+Cada etapa deve responder claramente:
+
+- o que será feito;
+- por que isso é necessário;
+- qual resultado essa etapa deve produzir.
+
+Os passos devem ser escritos de forma que uma pessoa da
+empresa consiga entender o caminho necessário para tirar
+a ideia do papel.
+
+=========================================================
+NÍVEL DE DETALHE
+=========================================================
+
+Evite etapas vagas.
+
+Não escreva apenas:
+
+"Fazer um piloto."
+
+Prefira:
+
+"Executar um projeto-piloto em uma área selecionada,
+acompanhar o funcionamento da solução e registrar os
+problemas encontrados antes de expandir para outras áreas."
+
+Não escreva apenas:
+
+"Treinar funcionários."
+
+Prefira:
+
+"Treinar os colaboradores que utilizarão a solução,
+explicando o novo processo, responsabilidades e procedimentos
+para utilização no dia a dia."
+
+Os próximos passos devem ser práticos e executáveis.
+
+=========================================================
+IMPLANTAÇÃO
+=========================================================
+
+Quando aplicável, considere a sequência:
+
+1. diagnóstico;
+2. validação da ideia;
+3. viabilidade;
+4. planejamento;
+5. definição do escopo;
+6. aprovação;
+7. orçamento;
+8. aquisição ou desenvolvimento;
+9. preparação;
+10. piloto;
+11. testes;
+12. ajustes;
+13. treinamento;
+14. implantação;
+15. acompanhamento;
+16. medição;
+17. melhoria contínua.
+
+Não force todas as etapas.
+
+Selecione apenas as que realmente fizerem sentido
+para o projeto analisado.
+
+=========================================================
+2. CUSTOS E RETORNO
+=========================================================
+
+Estime os principais recursos e custos necessários.
+
+Separe:
+
+Investimento inicial.
+
+Custo operacional.
+
+Estime o valor gerado pelo projeto considerando:
 
 - economia;
-- produtividade;
-- redução de desperdícios;
-- redução de riscos;
-- melhoria de processos;
-- melhoria para pessoas;
-- geração de valor.
+- redução de perdas;
+- aumento de produtividade;
+- receita adicional;
+- outros benefícios financeiros relevantes.
 
-INOVAÇÃO — 0 a 10
+Calcule, quando possível:
 
-Avalie:
+- benefício líquido;
+- ROI;
+- payback.
 
-- novidade;
-- diferenciação;
-- melhoria significativa em relação ao processo atual.
+Quando não houver dados suficientes para calcular
+um valor confiável, não invente números.
 
-Uma ideia não precisa ser revolucionária para receber uma
-boa nota.
+Nesse caso, explique quais dados seriam necessários
+para calcular o valor posteriormente.
 
-MATURIDADE — 0 a 10
-
-Avalie:
-
-- clareza;
-- nível de desenvolvimento;
-- existência de objetivo;
-- entendimento de como colocar a ideia em prática.
+Quando utilizar uma estimativa, identifique claramente
+que ela é uma estimativa.
 
 =========================================================
-2. SCORE DA IDEIA
+3. IMPACTO ESG
 =========================================================
 
-Some exatamente:
-
-problema + solução + viabilidade + impacto + inovação + maturidade.
-
-O resultado deve estar entre 0 e 100.
-
-Classifique:
-
-90–100 = EXCELLENT
-
-75–89 = GOOD
-
-60–74 = FAIR
-
-0–59 = LOW
-
-IMPORTANTE:
-
-Não dê notas altas apenas porque a ideia parece positiva.
-
-Uma ideia genérica deve receber nota baixa mesmo que tenha
-relação com ESG.
-
-=========================================================
-3. PONTOS FORTES E FRACOS
-=========================================================
-
-Liste os principais pontos fortes da ideia.
-
-Liste também os principais pontos que reduzem sua qualidade.
-
-Se a ideia for fraca, explique claramente por quê.
-
-Não seja excessivamente positivo.
-
-O objetivo é ajudar a empresa a tomar uma decisão melhor.
-
-=========================================================
-4. RECOMENDAÇÕES
-=========================================================
-
-Liste ações concretas que poderiam melhorar a ideia.
-
-As recomendações devem responder:
-
-"O que precisa mudar para essa ideia se tornar uma proposta
-mais forte e executável?"
-
-=========================================================
-5. SCORE ESG
-=========================================================
-
-Avalie separadamente:
+Avalie os três pilares:
 
 Ambiental:
 
@@ -767,121 +1024,163 @@ Governança:
 
 Não invente impactos.
 
-Não considere uma ideia ESG apenas porque utiliza palavras
-como sustentabilidade, ambiente ou responsabilidade.
-
-Procure evidências na ideia e nas respostas.
+Diferencie informações comprovadas de estimativas.
 
 =========================================================
-6. PRIORIDADE
+4. SCORE DA IDEIA
 =========================================================
 
-Calcule um score de prioridade entre 0 e 100.
+Além do potencial ESG, avalie a qualidade e a força
+da própria ideia.
 
-A prioridade deve considerar:
+O fato de uma ideia se encaixar em ESG NÃO significa
+automaticamente que ela seja uma boa ideia.
 
-- qualidade da ideia;
+Calcule:
+
+idea_score:
+nota de 0 a 100 que representa a qualidade geral da ideia.
+
+Considere:
+
+- clareza do problema;
+- relevância do problema;
+- qualidade da solução proposta;
+- benefício potencial;
+- aplicabilidade;
+- potencial de geração de valor;
+- coerência entre problema e solução;
+- nível de evidência disponível.
+
+priority_score:
+nota de 0 a 100 que representa o quanto a empresa deveria
+priorizar a análise ou execução dessa ideia.
+
+Considere:
+
 - impacto potencial;
-- viabilidade;
-- potencial ESG;
-- relevância estratégica.
+- relevância estratégica;
+- impacto ESG;
+- retorno potencial;
+- facilidade de implantação;
+- riscos;
+- urgência;
+- capacidade de gerar benefícios relevantes.
 
-Uma ideia com ESG alto mas qualidade baixa NÃO deve receber
-prioridade alta automaticamente.
+IMPORTANTE:
 
-Classifique:
+Uma ideia pode ter alto potencial ESG e baixo idea_score.
 
-90–100 = EXCELLENT
+Uma ideia pode ter baixo impacto ESG e ainda assim ser uma
+boa ideia de negócio, mas nesse caso seu priority_score
+deve refletir a relevância geral para a empresa.
 
-75–89 = GOOD
+Não aumente a nota apenas porque a ideia se encaixa
+em uma dimensão ESG.
 
-60–74 = FAIR
-
-0–59 = LOW
-
-Explique em uma frase por que a ideia recebeu essa prioridade.
-
-=========================================================
-7. PROJETO
-=========================================================
-
-Explique brevemente:
-
-- o problema;
-- a solução;
-- o objetivo;
-- os beneficiados.
-
-Depois transforme a ideia em um projeto aplicável.
-
-Os próximos passos devem representar o processo de implantação
-da ideia.
-
-Não limite os próximos passos a apenas 2 ou 3 etapas.
-
-Quando fizer sentido, considere:
-
-1. validação inicial;
-2. avaliação de viabilidade;
-3. planejamento;
-4. aprovação;
-5. orçamento;
-6. aquisição ou contratação;
-7. preparação;
-8. desenvolvimento ou instalação;
-9. testes;
-10. ajustes;
-11. treinamento;
-12. implantação;
-13. acompanhamento;
-14. medição;
-15. melhoria contínua.
-
-NÃO force todas as etapas.
-
-Use somente as que fizerem sentido.
+Use números inteiros entre 0 e 100.
 
 =========================================================
-8. REGRA DE EVIDÊNCIA
+5. RISCOS
+=========================================================
+
+Identifique os principais riscos capazes de comprometer
+a implantação ou o funcionamento do projeto.
+
+Considere:
+
+- riscos técnicos;
+- riscos operacionais;
+- riscos financeiros;
+- riscos legais;
+- riscos de segurança;
+- riscos ambientais;
+- riscos sociais.
+
+Não crie riscos genéricos sem relação com a ideia.
+
+=========================================================
+6. LEVANTAMENTOS ESSENCIAIS
+=========================================================
+
+Liste somente os dados que ainda precisam ser obtidos
+e que podem alterar significativamente a decisão.
+
+Classifique como:
+
+Alta:
+pode mudar a decisão.
+
+Média:
+melhora significativamente a precisão.
+
+Baixa:
+útil apenas para refinamento posterior.
+
+Não inclua informações desnecessárias.
+
+=========================================================
+7. DECISÃO DE VIABILIDADE
+=========================================================
+
+Classifique como:
+
+VIÁVEL
+
+VIÁVEL COM RESSALVAS
+
+INVIÁVEL
+
+Considere:
+
+custos + riscos + limitações
+
+versus:
+
+retorno + economia + impacto ESG + benefícios estratégicos.
+
+=========================================================
+8. CONCLUSÃO
+=========================================================
+
+Finalize considerando:
+
+Viabilidade
+
+Investimento
+
+Custo operacional
+
+Retorno
+
+Payback
+
+Impacto ESG
+
+Principal risco
+
+Próximo passo
+
+=========================================================
+REGRA FUNDAMENTAL
 =========================================================
 
 Não invente dados.
 
-Quando uma conclusão for baseada em uma inferência,
-deixe isso claro.
+Quando não houver informação suficiente,
+não crie números falsos.
 
-Não invente valores financeiros.
+Quando houver uma estimativa razoável,
+identifique explicitamente como estimativa.
 
-Não invente métricas.
+A análise deve transformar a ideia em um projeto executável,
+e não apenas resumir o que o colaborador escreveu.
 
-Não invente impactos ESG.
+Os próximos passos devem mostrar uma sequência lógica
+desde a preparação da ideia até sua implantação,
+operação e acompanhamento.
 
-=========================================================
-9. TOM DA AVALIAÇÃO
-=========================================================
-
-Seja:
-
-- objetivo;
-- crítico;
-- justo;
-- profissional;
-- construtivo.
-
-Não tente agradar o colaborador.
-
-A finalidade é identificar quais ideias realmente merecem
-ser priorizadas pela empresa.
-
-=========================================================
-10. FORMATO
-=========================================================
-
-Retorne SOMENTE JSON válido.
-
-Não use Markdown.
-
-Não coloque texto antes ou depois do JSON.
+Não faça perguntas durante a análise.
 `;
 
     /* =====================================================
@@ -897,12 +1196,36 @@ HISTÓRICO DA ENTREVISTA:
 
 ${history}
 
-Analise a ideia usando exclusivamente essas informações.
+Analise a ideia com base exclusivamente nas informações
+acima.
 
-Retorne exatamente esta estrutura JSON:
+A análise deve ser suficientemente detalhada para transformar
+a ideia em um projeto executável.
+
+IMPORTANTE:
+
+- Faça uma análise específica para esta ideia.
+- Não responda de forma genérica.
+- Gere uma sequência de próximos passos coerente com a ideia.
+- Quando a implantação exigir várias fases, utilize
+  preferencialmente entre 6 e 10 próximos passos.
+- Cada próximo passo deve representar uma ação concreta.
+- Não reduza todo o projeto a "validar, implementar e acompanhar".
+- Não invente informações que não estejam disponíveis.
+- Quando houver incerteza, deixe claro que se trata de uma estimativa.
+- O idea_score deve avaliar a qualidade da ideia.
+- O priority_score deve avaliar a prioridade da ideia para a empresa.
+- Não aumente nenhuma dessas notas simplesmente porque a ideia
+  possui relação com ESG.
+
+Retorne exatamente esta estrutura:
 
 {
   "status": "completed",
+
+  "idea_score": 0,
+
+  "priority_score": 0,
 
   "potential_esg": "HIGH",
 
@@ -923,32 +1246,14 @@ Retorne exatamente esta estrutura JSON:
 
   "main_dimension": "environmental",
 
-  "idea_score": {
-    "total": 0,
-    "level": "LOW",
-    "breakdown": {
-      "problem": 0,
-      "solution": 0,
-      "feasibility": 0,
-      "impact": 0,
-      "innovation": 0,
-      "maturity": 0
-    },
-    "strengths": [],
-    "weaknesses": [],
-    "recommendations": []
-  },
-
-  "priority_score": {
-    "total": 0,
-    "level": "LOW",
-    "justification": ""
-  },
-
   "theme": "",
+
   "summary": "",
+
   "benefits": [],
+
   "areas": [],
+
   "next_steps": [],
 
   "mini_project": {
@@ -957,48 +1262,16 @@ Retorne exatamente esta estrutura JSON:
   }
 }
 
-=========================================================
-REGRAS DOS SCORES
-=========================================================
-
-idea_score.breakdown.problem:
-0 a 20
-
-idea_score.breakdown.solution:
-0 a 20
-
-idea_score.breakdown.feasibility:
-0 a 20
-
-idea_score.breakdown.impact:
-0 a 20
-
-idea_score.breakdown.innovation:
-0 a 10
-
-idea_score.breakdown.maturity:
-0 a 10
-
-idea_score.total deve ser exatamente a soma dos seis critérios.
-
-idea_score.level:
-
-90–100 = "EXCELLENT"
-75–89 = "GOOD"
-60–74 = "FAIR"
-0–59 = "LOW"
-
-priority_score.total:
-0 a 100.
-
-priority_score.level:
-
-90–100 = "EXCELLENT"
-75–89 = "GOOD"
-60–74 = "FAIR"
-0–59 = "LOW"
-
 Valores permitidos:
+
+status:
+"completed"
+
+idea_score:
+número inteiro entre 0 e 100
+
+priority_score:
+número inteiro entre 0 e 100
 
 potential_esg:
 "HIGH" | "MEDIUM" | "LOW"
@@ -1009,10 +1282,41 @@ dimensions.level:
 main_dimension:
 "environmental" | "social" | "governance"
 
-Não invente informações.
-Não invente números financeiros.
-Não invente impactos.
-Não coloque comentários no JSON.
+theme:
+texto curto representando o tema principal da ideia
+
+summary:
+resumo claro da ideia, problema, solução e objetivo
+
+benefits:
+lista de benefícios concretos
+
+areas:
+lista de áreas da empresa potencialmente envolvidas
+
+next_steps:
+lista ordenada de etapas práticas para implantação
+
+mini_project.title:
+nome do projeto
+
+mini_project.description:
+descrição curta e prática do mini-projeto
+
+IMPORTANTE SOBRE next_steps:
+
+Quando a ideia tiver complexidade suficiente,
+retorne preferencialmente entre 6 e 10 etapas.
+
+As etapas devem estar em ordem lógica.
+
+Cada etapa deve ser específica para a ideia.
+
+Não use etapas genéricas ou repetitivas.
+
+Não invente informações para preencher campos.
+
+Retorne SOMENTE JSON válido.
 `;
 
     /* =====================================================
@@ -1047,52 +1351,41 @@ Não coloque comentários no JSON.
     ===================================================== */
 
     try {
-      const result = JSON.parse(cleaned) as AnalysisResult;
+      const parsed = JSON.parse(cleaned) as AnalysisResult;
 
       /* ===================================================
          VALIDAÇÃO BÁSICA DOS SCORES
       =================================================== */
 
       if (
-        !result.idea_score ||
-        !result.priority_score
+        typeof parsed.idea_score !== "number" ||
+        parsed.idea_score < 0 ||
+        parsed.idea_score > 100
       ) {
         throw new Error(
-          "A análise não retornou os scores obrigatórios."
+          "idea_score inválido retornado pelo Gemini."
         );
       }
-
-      const breakdown = result.idea_score.breakdown;
-
-      const calculatedTotal =
-        breakdown.problem +
-        breakdown.solution +
-        breakdown.feasibility +
-        breakdown.impact +
-        breakdown.innovation +
-        breakdown.maturity;
 
       if (
-        calculatedTotal !== result.idea_score.total
+        typeof parsed.priority_score !== "number" ||
+        parsed.priority_score < 0 ||
+        parsed.priority_score > 100
       ) {
-        console.warn(
-          "[geminiProvider] Score inconsistente. Recalculando total."
+        throw new Error(
+          "priority_score inválido retornado pelo Gemini."
         );
-
-        result.idea_score.total = calculatedTotal;
       }
 
-      result.idea_score.total = Math.max(
-        0,
-        Math.min(100, result.idea_score.total)
-      );
+      /* ===================================================
+         NORMALIZAÇÃO DOS PRÓXIMOS PASSOS
+      =================================================== */
 
-      result.priority_score.total = Math.max(
-        0,
-        Math.min(100, result.priority_score.total)
-      );
+      if (!Array.isArray(parsed.next_steps)) {
+        parsed.next_steps = [];
+      }
 
-      return result;
+      return parsed;
     } catch (error) {
       console.error(
         "[geminiProvider] JSON inválido retornado pelo Gemini:",
