@@ -17,21 +17,23 @@ export default function Header() {
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 sm:px-8">
         <Link
           href="/copiloto"
-          className="group flex items-center gap-2.5"
-          aria-label="AEVO — página inicial"
+          className="group flex items-center"
+          aria-label="EVORA — página inicial"
         >
-          <span
-            className="inline-block h-3 w-3 shrink-0 rotate-45 rounded-[3px] bg-aevo transition-transform group-hover:rotate-[135deg]"
-            aria-hidden="true"
+          <img
+            src="/evora-logo.png"
+            alt="EVORA"
+            className="h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
           />
-          <span className="font-display text-lg font-semibold tracking-[0.22em] text-charcoal">
-            AEVO
-          </span>
         </Link>
 
-        <nav aria-label="Navegação principal" className="flex items-center gap-1 sm:gap-2">
+        <nav
+          aria-label="Navegação principal"
+          className="flex items-center gap-1 sm:gap-2"
+        >
           {NAV_ITEMS.map((item) => {
             const active = pathname?.startsWith(item.href);
+
             return (
               <Link
                 key={item.href}
@@ -39,10 +41,13 @@ export default function Header() {
                 aria-current={active ? "page" : undefined}
                 className={clsx(
                   "relative px-3 py-2 text-[13px] sm:text-sm font-medium transition-colors",
-                  active ? "text-charcoal" : "text-charcoal-faint hover:text-charcoal"
+                  active
+                    ? "text-charcoal"
+                    : "text-charcoal-faint hover:text-charcoal"
                 )}
               >
                 {item.label}
+
                 <span
                   className={clsx(
                     "absolute inset-x-3 -bottom-[1px] h-[2px] bg-aevo transition-opacity",
