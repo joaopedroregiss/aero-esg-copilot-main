@@ -1,11 +1,5 @@
 import { getDb } from "./client";
-import {
-  AnalysisResult,
-  ESGDimensionKey,
-  IdeaQualityLabel,
-  IdeaRecommendation,
-  IdeaSummary,
-} from "@/lib/esg/types";
+import { AnalysisResult, ESGDimensionKey, IdeaSummary } from "@/lib/esg/types";
 
 function uid() {
   return `idea-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -31,14 +25,6 @@ interface IdeaRow {
   next_steps: string[];
   mini_project_title: string;
   mini_project_desc: string;
-  quality_overall: number;
-  quality_label: IdeaQualityLabel;
-  quality_clarity: number;
-  quality_feasibility: number;
-  quality_impact: number;
-  quality_specificity: number;
-  quality_justification: string;
-  recommendation: IdeaRecommendation;
   created_at: string;
 }
 
@@ -82,14 +68,6 @@ export async function saveAnalyzedIdea(params: {
       next_steps: result.next_steps ?? [],
       mini_project_title: result.mini_project?.title ?? "",
       mini_project_desc: result.mini_project?.description ?? "",
-      quality_overall: result.quality?.overall ?? 0,
-      quality_label: result.quality?.label ?? "FRACA",
-      quality_clarity: result.quality?.criteria?.clarity ?? 0,
-      quality_feasibility: result.quality?.criteria?.feasibility ?? 0,
-      quality_impact: result.quality?.criteria?.impact ?? 0,
-      quality_specificity: result.quality?.criteria?.specificity ?? 0,
-      quality_justification: result.quality?.justification ?? "",
-      recommendation: result.recommendation ?? "REFINAR",
     })
     .select("*")
     .single();
@@ -144,18 +122,6 @@ function rowToStoredIdea(row: IdeaRow): StoredIdea {
         title: row.mini_project_title,
         description: row.mini_project_desc,
       },
-      quality: {
-        overall: row.quality_overall ?? 0,
-        label: row.quality_label ?? "FRACA",
-        criteria: {
-          clarity: row.quality_clarity ?? 0,
-          feasibility: row.quality_feasibility ?? 0,
-          impact: row.quality_impact ?? 0,
-          specificity: row.quality_specificity ?? 0,
-        },
-        justification: row.quality_justification ?? "",
-      },
-      recommendation: row.recommendation ?? "REFINAR",
     },
   };
 }
@@ -168,8 +134,6 @@ export interface ManagementMetrics {
   totalIdeas: number;
   withEsgPotential: number;
   highPotential: number;
-  /** Ideias com nota de qualidade FORTE — boas ideias, não só bem classificadas em ESG. */
-  strongQuality: number;
   lastUpdated: string | null;
 }
 
@@ -189,13 +153,11 @@ function ideaContributesTo(idea: StoredIdea, dim: ESGDimensionKey): boolean {
 export function getManagementMetrics(ideas: StoredIdea[]): ManagementMetrics {
   const withEsgPotential = ideas.filter((i) => DIMENSION_ORDER.some((d) => ideaContributesTo(i, d))).length;
   const highPotential = ideas.filter((i) => i.result.potential_esg === "HIGH").length;
-  const strongQuality = ideas.filter((i) => i.result.quality?.label === "FORTE").length;
 
   return {
     totalIdeas: ideas.length,
     withEsgPotential,
     highPotential,
-    strongQuality,
     lastUpdated: ideas[0]?.createdAt ?? null,
   };
 }
@@ -220,24 +182,8 @@ export function getEsgDistribution(ideas: StoredIdea[]): DimensionSlice[] {
 
 const POTENTIAL_RANK: Record<AnalysisResult["potential_esg"], number> = { HIGH: 3, MEDIUM: 2, LOW: 1 };
 
-/**
- * Ideias são ordenadas primeiro pela recomendação (priorizar > refinar >
- * descartar) e, dentro dela, pelo potencial ESG — assim uma ideia bem
- * encaixada em ESG mas de baixa qualidade não aparece à frente de uma
- * ideia realmente boa.
- */
-const RECOMMENDATION_RANK: Record<AnalysisResult["recommendation"], number> = {
-  PRIORIZAR: 3,
-  REFINAR: 2,
-  DESCARTAR: 1,
-};
-
 export function getTopIdeas(ideas: StoredIdea[], limit = 20): IdeaSummary[] {
-  const sorted = [...ideas].sort((a, b) => {
-    const recDiff = RECOMMENDATION_RANK[b.result.recommendation] - RECOMMENDATION_RANK[a.result.recommendation];
-    if (recDiff !== 0) return recDiff;
-    return POTENTIAL_RANK[b.result.potential_esg] - POTENTIAL_RANK[a.result.potential_esg];
-  });
+  const sorted = [...ideas].sort((a, b) => POTENTIAL_RANK[b.result.potential_esg] - POTENTIAL_RANK[a.result.potential_esg]);
 
   return sorted.slice(0, limit).map((idea) => {
     const highlightDimensions = DIMENSION_ORDER.filter((d) => ideaContributesTo(idea, d));
@@ -254,8 +200,6 @@ export function getTopIdeas(ideas: StoredIdea[], limit = 20): IdeaSummary[] {
       areas: idea.result.areas,
       nextSteps: idea.result.next_steps,
       miniProject: idea.result.mini_project,
-      quality: idea.result.quality,
-      recommendation: idea.result.recommendation,
       createdAt: idea.createdAt,
       ideaText: idea.ideaText,
       answers: idea.answers,
