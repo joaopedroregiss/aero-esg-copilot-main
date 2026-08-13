@@ -437,10 +437,6 @@ export const geminiProvider: AIProvider = {
 
     const questionNumber = answers.length + 1;
 
-    /* =====================================================
-       HISTÓRICO COMPLETO
-    ===================================================== */
-
     const conversationHistory =
       answers.length > 0
         ? answers
@@ -454,10 +450,6 @@ export const geminiProvider: AIProvider = {
         : "Nenhuma resposta anterior.";
 
     let input: string;
-
-    /* =====================================================
-       PRIMEIRA PERGUNTA
-    ===================================================== */
 
     if (!previousInteractionId) {
       input = `
@@ -491,10 +483,6 @@ na descrição da ideia.
 Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
 `;
     } else {
-      /* ===================================================
-         PRÓXIMA PERGUNTA
-      =================================================== */
-
       input = `
 IDEIA ORIGINAL DO COLABORADOR:
 
@@ -536,19 +524,11 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
 `;
     }
 
-    /* =====================================================
-       CHAMADA AO GEMINI
-    ===================================================== */
-
     const response = await createInteraction({
       input,
       systemInstruction: INTERVIEW_SYSTEM,
       previousInteractionId,
     });
-
-    /* =====================================================
-       SALVA INTERAÇÃO
-    ===================================================== */
 
     if (response?.id) {
       interactionStore.set(
@@ -556,10 +536,6 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
         response.id
       );
     }
-
-    /* =====================================================
-       EXTRAÇÃO
-    ===================================================== */
 
     const text = extractText(response);
 
@@ -572,10 +548,6 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
     const cleanText = text
       .replace(/^["']|["']$/g, "")
       .trim();
-
-    /* =====================================================
-       VERIFICA ENCERRAMENTO
-    ===================================================== */
 
     if (cleanText === READY_MESSAGE) {
       return {
@@ -591,7 +563,7 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
   },
 
   /* =======================================================
-     ANÁLISE ESG
+     ANÁLISE
   ======================================================= */
 
   async analyze({
@@ -603,10 +575,6 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
     if (!idea) {
       throw new Error("A ideia do colaborador não foi informada.");
     }
-
-    /* =====================================================
-       HISTÓRICO
-    ===================================================== */
 
     const history =
       answers.length > 0
@@ -624,109 +592,151 @@ Esta é a pergunta ${questionNumber} de no máximo ${MAX_INTERVIEW_QUESTIONS}.
        SISTEMA DE ANÁLISE
     ===================================================== */
 
-const ANALYZE_SYSTEM = `
-ANALISADOR DE VIABILIDADE DE IDEIAS DO AEVO ESG
+    const ANALYZE_SYSTEM = `
+Você é o avaliador estratégico de ideias do AEVO ESG Copilot.
 
 Sua função é analisar uma ideia apresentada por um colaborador
-e transformar as informações coletadas durante a entrevista
-em uma proposta de projeto aplicável.
+e avaliar DUAS coisas diferentes:
 
-Você NÃO está entrevistando o colaborador.
-
-Você NÃO deve fazer perguntas ao colaborador.
-
-Você deve analisar as informações fornecidas.
-
-=========================================================
-1. IDEIA E PROJETO
-=========================================================
-
-Explique brevemente:
-
-- o problema;
-- a solução;
-- o objetivo;
-- os beneficiados.
-
-Depois transforme a ideia em um projeto aplicável.
+1. O potencial ESG da ideia.
+2. A qualidade e o potencial real da ideia.
 
 IMPORTANTE:
 
-Os próximos passos devem representar o processo completo
-de implantação da ideia na empresa.
+Uma ideia pode ter forte relação com ESG e ainda assim ser
+uma ideia ruim, genérica, inviável ou pouco madura.
 
-NÃO limite os próximos passos a apenas 2 ou 3 etapas.
+Portanto:
 
-Quando a natureza da ideia exigir, descreva desde o início
-da implantação até a operação e acompanhamento da solução.
+ESG NÃO significa automaticamente uma ideia boa.
 
-Considere, quando aplicável:
-
-1. entendimento e validação inicial;
-2. avaliação de viabilidade;
-3. planejamento;
-4. definição da solução;
-5. aprovação;
-6. orçamento;
-7. contratação ou aquisição;
-8. preparação da infraestrutura;
-9. instalação ou desenvolvimento;
-10. testes;
-11. ajustes;
-12. treinamento dos envolvidos;
-13. implantação;
-14. acompanhamento inicial;
-15. medição dos resultados;
-16. manutenção e melhoria contínua.
-
-NÃO force todas essas etapas em qualquer ideia.
-
-Use somente as fases que fizerem sentido para o projeto.
-
-Cada etapa deve explicar:
-
-- o que será feito;
-- por que essa etapa é necessária;
-- qual resultado esperado.
-
-Os próximos passos devem ser suficientemente detalhados
-para que uma pessoa consiga entender como a empresa poderia
-tirar a ideia do papel.
+Avalie a qualidade da ideia de forma independente do ESG.
 
 =========================================================
-2. CUSTOS E RETORNO
+1. QUALIDADE DA IDEIA
 =========================================================
 
-Estime os principais recursos e custos necessários.
+Avalie a ideia em seis critérios.
 
-Separe:
+PROBLEMA / OPORTUNIDADE — 0 a 20
 
-Investimento inicial.
+Avalie:
 
-Custo operacional.
+- se existe um problema ou oportunidade real;
+- se está bem definido;
+- se é relevante;
+- se a ideia está atacando uma necessidade concreta.
 
-Estime o valor gerado pelo projeto considerando:
+SOLUÇÃO — 0 a 20
+
+Avalie:
+
+- se a solução responde ao problema;
+- se existe uma lógica clara entre problema e solução;
+- se a proposta é específica;
+- se não é apenas uma sugestão genérica.
+
+VIABILIDADE — 0 a 20
+
+Avalie:
+
+- possibilidade de execução;
+- complexidade;
+- recursos necessários;
+- dependências;
+- limitações conhecidas.
+
+Não presuma que uma ideia é viável apenas porque parece simples.
+
+IMPACTO — 0 a 20
+
+Avalie o potencial de:
 
 - economia;
-- redução de perdas;
-- aumento de produtividade;
-- receita adicional;
-- outros benefícios financeiros relevantes.
+- produtividade;
+- redução de desperdícios;
+- redução de riscos;
+- melhoria de processos;
+- melhoria para pessoas;
+- geração de valor.
 
-Calcule, quando possível:
+INOVAÇÃO — 0 a 10
 
-- benefício líquido;
-- ROI;
-- payback.
+Avalie:
 
-Quando houver incerteza relevante, utilize estimativas
-e deixe claro que são estimativas.
+- novidade;
+- diferenciação;
+- melhoria significativa em relação ao processo atual.
+
+Uma ideia não precisa ser revolucionária para receber uma
+boa nota.
+
+MATURIDADE — 0 a 10
+
+Avalie:
+
+- clareza;
+- nível de desenvolvimento;
+- existência de objetivo;
+- entendimento de como colocar a ideia em prática.
 
 =========================================================
-3. IMPACTO ESG
+2. SCORE DA IDEIA
 =========================================================
 
-Avalie os três pilares:
+Some exatamente:
+
+problema + solução + viabilidade + impacto + inovação + maturidade.
+
+O resultado deve estar entre 0 e 100.
+
+Classifique:
+
+90–100 = EXCELLENT
+
+75–89 = GOOD
+
+60–74 = FAIR
+
+0–59 = LOW
+
+IMPORTANTE:
+
+Não dê notas altas apenas porque a ideia parece positiva.
+
+Uma ideia genérica deve receber nota baixa mesmo que tenha
+relação com ESG.
+
+=========================================================
+3. PONTOS FORTES E FRACOS
+=========================================================
+
+Liste os principais pontos fortes da ideia.
+
+Liste também os principais pontos que reduzem sua qualidade.
+
+Se a ideia for fraca, explique claramente por quê.
+
+Não seja excessivamente positivo.
+
+O objetivo é ajudar a empresa a tomar uma decisão melhor.
+
+=========================================================
+4. RECOMENDAÇÕES
+=========================================================
+
+Liste ações concretas que poderiam melhorar a ideia.
+
+As recomendações devem responder:
+
+"O que precisa mudar para essa ideia se tornar uma proposta
+mais forte e executável?"
+
+=========================================================
+5. SCORE ESG
+=========================================================
+
+Avalie separadamente:
 
 Ambiental:
 
@@ -757,106 +767,121 @@ Governança:
 
 Não invente impactos.
 
-Diferencie informações comprovadas de estimativas.
+Não considere uma ideia ESG apenas porque utiliza palavras
+como sustentabilidade, ambiente ou responsabilidade.
+
+Procure evidências na ideia e nas respostas.
 
 =========================================================
-4. RISCOS
+6. PRIORIDADE
 =========================================================
 
-Identifique os principais riscos capazes de comprometer
-a implantação ou o funcionamento do projeto.
+Calcule um score de prioridade entre 0 e 100.
 
-Considere:
+A prioridade deve considerar:
 
-- riscos técnicos;
-- riscos operacionais;
-- riscos financeiros;
-- riscos legais;
-- riscos de segurança;
-- riscos ambientais;
-- riscos sociais.
+- qualidade da ideia;
+- impacto potencial;
+- viabilidade;
+- potencial ESG;
+- relevância estratégica.
 
-Não crie riscos genéricos sem relação com a ideia.
+Uma ideia com ESG alto mas qualidade baixa NÃO deve receber
+prioridade alta automaticamente.
 
-=========================================================
-5. LEVANTAMENTOS ESSENCIAIS
-=========================================================
+Classifique:
 
-Liste somente os dados que ainda precisam ser obtidos
-e que podem alterar significativamente a decisão.
+90–100 = EXCELLENT
 
-Classifique como:
+75–89 = GOOD
 
-Alta:
-pode mudar a decisão.
+60–74 = FAIR
 
-Média:
-melhora significativamente a precisão.
+0–59 = LOW
 
-Baixa:
-útil apenas para refinamento posterior.
-
-Não inclua informações desnecessárias.
+Explique em uma frase por que a ideia recebeu essa prioridade.
 
 =========================================================
-6. DECISÃO DE VIABILIDADE
+7. PROJETO
 =========================================================
 
-Classifique como:
+Explique brevemente:
 
-VIÁVEL
+- o problema;
+- a solução;
+- o objetivo;
+- os beneficiados.
 
-VIÁVEL COM RESSALVAS
+Depois transforme a ideia em um projeto aplicável.
 
-INVIÁVEL
+Os próximos passos devem representar o processo de implantação
+da ideia.
 
-Considere:
+Não limite os próximos passos a apenas 2 ou 3 etapas.
 
-custos + riscos + limitações
+Quando fizer sentido, considere:
 
-versus:
+1. validação inicial;
+2. avaliação de viabilidade;
+3. planejamento;
+4. aprovação;
+5. orçamento;
+6. aquisição ou contratação;
+7. preparação;
+8. desenvolvimento ou instalação;
+9. testes;
+10. ajustes;
+11. treinamento;
+12. implantação;
+13. acompanhamento;
+14. medição;
+15. melhoria contínua.
 
-retorno + economia + impacto ESG + benefícios estratégicos.
+NÃO force todas as etapas.
 
-=========================================================
-7. CONCLUSÃO
-=========================================================
-
-Finalize com:
-
-Viabilidade
-
-Investimento
-
-Custo operacional
-
-Retorno
-
-Payback
-
-Impacto ESG
-
-Principal risco
-
-Próximo passo
+Use somente as que fizerem sentido.
 
 =========================================================
-REGRA FUNDAMENTAL
+8. REGRA DE EVIDÊNCIA
 =========================================================
 
 Não invente dados.
 
-Quando não houver informação suficiente,
-utilize uma estimativa razoável e identifique-a como estimativa.
+Quando uma conclusão for baseada em uma inferência,
+deixe isso claro.
 
-A análise deve transformar a ideia em um projeto executável,
-e não apenas resumir o que o colaborador escreveu.
+Não invente valores financeiros.
 
-Os próximos passos devem mostrar uma sequência lógica
-desde a preparação da ideia até sua implantação,
-operação e acompanhamento.
+Não invente métricas.
 
-Não faça perguntas durante a análise.
+Não invente impactos ESG.
+
+=========================================================
+9. TOM DA AVALIAÇÃO
+=========================================================
+
+Seja:
+
+- objetivo;
+- crítico;
+- justo;
+- profissional;
+- construtivo.
+
+Não tente agradar o colaborador.
+
+A finalidade é identificar quais ideias realmente merecem
+ser priorizadas pela empresa.
+
+=========================================================
+10. FORMATO
+=========================================================
+
+Retorne SOMENTE JSON válido.
+
+Não use Markdown.
+
+Não coloque texto antes ou depois do JSON.
 `;
 
     /* =====================================================
@@ -872,14 +897,15 @@ HISTÓRICO DA ENTREVISTA:
 
 ${history}
 
-Analise a ideia com base exclusivamente nas informações
-acima.
+Analise a ideia usando exclusivamente essas informações.
 
-Retorne exatamente esta estrutura:
+Retorne exatamente esta estrutura JSON:
 
 {
   "status": "completed",
+
   "potential_esg": "HIGH",
+
   "dimensions": {
     "environmental": {
       "level": "NOT_IDENTIFIED",
@@ -894,17 +920,83 @@ Retorne exatamente esta estrutura:
       "justification": ""
     }
   },
+
   "main_dimension": "environmental",
+
+  "idea_score": {
+    "total": 0,
+    "level": "LOW",
+    "breakdown": {
+      "problem": 0,
+      "solution": 0,
+      "feasibility": 0,
+      "impact": 0,
+      "innovation": 0,
+      "maturity": 0
+    },
+    "strengths": [],
+    "weaknesses": [],
+    "recommendations": []
+  },
+
+  "priority_score": {
+    "total": 0,
+    "level": "LOW",
+    "justification": ""
+  },
+
   "theme": "",
   "summary": "",
   "benefits": [],
   "areas": [],
   "next_steps": [],
+
   "mini_project": {
     "title": "",
     "description": ""
   }
 }
+
+=========================================================
+REGRAS DOS SCORES
+=========================================================
+
+idea_score.breakdown.problem:
+0 a 20
+
+idea_score.breakdown.solution:
+0 a 20
+
+idea_score.breakdown.feasibility:
+0 a 20
+
+idea_score.breakdown.impact:
+0 a 20
+
+idea_score.breakdown.innovation:
+0 a 10
+
+idea_score.breakdown.maturity:
+0 a 10
+
+idea_score.total deve ser exatamente a soma dos seis critérios.
+
+idea_score.level:
+
+90–100 = "EXCELLENT"
+75–89 = "GOOD"
+60–74 = "FAIR"
+0–59 = "LOW"
+
+priority_score.total:
+0 a 100.
+
+priority_score.level:
+
+90–100 = "EXCELLENT"
+75–89 = "GOOD"
+60–74 = "FAIR"
+0–59 = "LOW"
 
 Valores permitidos:
 
@@ -917,7 +1009,10 @@ dimensions.level:
 main_dimension:
 "environmental" | "social" | "governance"
 
-Não invente informações para preencher campos.
+Não invente informações.
+Não invente números financeiros.
+Não invente impactos.
+Não coloque comentários no JSON.
 `;
 
     /* =====================================================
@@ -952,7 +1047,52 @@ Não invente informações para preencher campos.
     ===================================================== */
 
     try {
-      return JSON.parse(cleaned) as AnalysisResult;
+      const result = JSON.parse(cleaned) as AnalysisResult;
+
+      /* ===================================================
+         VALIDAÇÃO BÁSICA DOS SCORES
+      =================================================== */
+
+      if (
+        !result.idea_score ||
+        !result.priority_score
+      ) {
+        throw new Error(
+          "A análise não retornou os scores obrigatórios."
+        );
+      }
+
+      const breakdown = result.idea_score.breakdown;
+
+      const calculatedTotal =
+        breakdown.problem +
+        breakdown.solution +
+        breakdown.feasibility +
+        breakdown.impact +
+        breakdown.innovation +
+        breakdown.maturity;
+
+      if (
+        calculatedTotal !== result.idea_score.total
+      ) {
+        console.warn(
+          "[geminiProvider] Score inconsistente. Recalculando total."
+        );
+
+        result.idea_score.total = calculatedTotal;
+      }
+
+      result.idea_score.total = Math.max(
+        0,
+        Math.min(100, result.idea_score.total)
+      );
+
+      result.priority_score.total = Math.max(
+        0,
+        Math.min(100, result.priority_score.total)
+      );
+
+      return result;
     } catch (error) {
       console.error(
         "[geminiProvider] JSON inválido retornado pelo Gemini:",
