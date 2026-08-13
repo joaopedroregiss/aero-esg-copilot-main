@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+:root {
+  /* Core surfaces */
+  --color-canvas: #f7f5f0;
+  --color-canvas-raised: #fcfbf8;
+  --color-charcoal: #1c1e1c;
+  --color-charcoal-soft: #4a4d49;
+  --color-charcoal-faint: #8a8d87;
+  --color-line: #dedad0;
+  --color-line-strong: #c7c2b4;
+
+  /* Brand */
+  --color-aevo: #e2531d;
+  --color-aevo-soft: #f6e3d6;
+  --color-aevo-dark: #b8410f;
+
+  /* ESG */
+  --color-environmental: #2f6b45;
+  --color-environmental-soft: #e2ede2;
+  --color-social: #2b57a6;
+  --color-social-soft: #e2e9f4;
+  --color-governance: #5c4696;
+  --color-governance-soft: #eae3f4;
+
+  /* Status */
+  --color-danger: #b8341f;
+  --color-danger-soft: #f6e0da;
+}
+
+/* =========================================================
+   Modos de acessibilidade — Claro (padrão) / Escuro / Alto contraste
+   Alternados via atributo data-theme no <html>, controlado pelo
+   botão de acessibilidade (ver AccessibilityToggle).
+========================================================= */
+
+:root[data-theme="dark"] {
+  --color-canvas: #16171a;
+  --color-canvas-raised: #1e2023;
+  --color-charcoal: #f3f2ee;
+  --color-charcoal-soft: #c7c5bd;
+  --color-charcoal-faint: #8d8b86;
+  --color-line: #313337;
+  --color-line-strong: #454850;
+
+  --color-aevo: #ff8347;
+  --color-aevo-soft: #3a2415;
+  --color-aevo-dark: #ffb088;
+
+  --color-environmental: #6fc189;
+  --color-environmental-soft: #1c3324;
+  --color-social: #7fabee;
+  --color-social-soft: #1c2b45;
+  --color-governance: #bda2ee;
+  --color-governance-soft: #2b2242;
+
+  --color-danger: #ff7a63;
+  --color-danger-soft: #3b1e17;
+}
+
+:root[data-theme="contrast"] {
+  --color-canvas: #000000;
+  --color-canvas-raised: #0a0a0a;
+  --color-charcoal: #ffffff;
+  --color-charcoal-soft: #ffffff;
+  --color-charcoal-faint: #e6e6e6;
+  --color-line: #ffffff;
+  --color-line-strong: #ffffff;
+
+  --color-aevo: #ffd400;
+  --color-aevo-soft: #000000;
+  --color-aevo-dark: #ffd400;
+
+  --color-environmental: #00ff85;
+  --color-environmental-soft: #000000;
+  --color-social: #5bd0ff;
+  --color-social-soft: #000000;
+  --color-governance: #ff8cff;
+  --color-governance-soft: #000000;
+
+  --color-danger: #ff4433;
+  --color-danger-soft: #000000;
+}
+
+:root[data-theme="contrast"] * {
+  border-color: var(--color-line) !important;
+}
+
+:root[data-theme="contrast"] :focus-visible {
+  outline: 3px solid var(--color-aevo);
+  outline-offset: 2px;
+}
+
+@theme inline {
+  --color-canvas: var(--color-canvas);
+  --color-canvas-raised: var(--color-canvas-raised);
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --color-charcoal-faint: var(--color-charcoal-faint);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+
+  --color-aevo: var(--color-aevo);
+  --color-aevo-soft: var(--color-aevo-soft);
+  --color-aevo-dark: var(--color-aevo-dark);
+
+  --color-environmental: var(--color-environmental);
+  --color-environmental-soft: var(--color-environmental-soft);
+  --color-social: var(--color-social);
+  --color-social-soft: var(--color-social-soft);
+  --color-governance: var(--color-governance);
+  --color-governance-soft: var(--color-governance-soft);
+
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  --font-body: "IBM Plex Sans", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+/*
+ * Fonts are loaded progressively-enhanced: if "Space Grotesk" / "IBM Plex
+ * Sans" / "IBM Plex Mono" are available (e.g. self-hosted, or installed on
+ * the device) they are used; otherwise the stack above degrades gracefully
+ * to system fonts. This keeps the build fully offline-safe — swap in
+ * next/font/local with real font files for a pixel-perfect brand match.
+ */
+
+* {
+  border-color: var(--color-line);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-charcoal);
+}
+
+::selection {
+  background: var(--color-aevo-soft);
+  color: var(--color-aevo-dark);
+}
+
+/* Visible focus ring across the product */
+:focus-visible {
+  outline: 2px solid var(--color-aevo);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbar — quiet, industrial */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 0;
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-message-in {
+  animation: message-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-panel-in {
+  animation: panel-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+.animate-typing-dot {
+  animation: typing-dot 1.1s ease-in-out infinite;
+}
