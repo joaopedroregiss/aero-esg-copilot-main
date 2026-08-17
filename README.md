@@ -1,10 +1,44 @@
-# AEVO — Copiloto ESG
+# Évora — Copiloto ESG para a AEVO 🏆
 
-AEVO é um copiloto de IA que recebe ideias de melhoria de colaboradores, investiga o
-contexto com perguntas direcionadas e converte a ideia em uma oportunidade ESG
-estruturada (Ambiental · Social · Governança).
+**Évora** é um copiloto de IA desenvolvido para a **AEVO**, que recebe ideias de
+melhoria enviadas por colaboradores, investiga o contexto por meio de perguntas
+direcionadas e converte a ideia em uma oportunidade ESG estruturada — avaliando
+tanto a **qualidade da ideia** quanto o seu **enquadramento ESG** (Ambiental,
+Social e Governança).
 
-## Como rodar
+## 🏅 Sobre o projeto
+
+Este protótipo foi desenvolvido para uma competição de inovação que reuniu **5
+empresas**, cada uma com **3 equipes** competindo entre si internamente. Ao final,
+era eleita a melhor ideia de cada empresa e, em seguida, a melhor ideia entre
+**todas** as empresas participantes.
+
+A Évora venceu em ambas as fases:
+
+- 🥇 **Melhor ideia dentro da AEVO**, entre as equipes internas.
+- 🏆 **Melhor ideia do campeonato inteiro**, à frente dos projetos das outras
+  4 empresas participantes.
+
+## 💡 O que o Évora faz
+
+1. O colaborador descreve uma ideia de melhoria em um chat conversacional.
+2. O copiloto faz perguntas de investigação para entender melhor o contexto,
+   o problema e a solução proposta.
+3. Ao final da entrevista, a IA gera uma análise estruturada com:
+   - **Potencial ESG** (alto / médio / baixo) e a dimensão em que a ideia
+     melhor se enquadra — Ambiental, Social ou Governança — com justificativa
+     para cada dimensão.
+   - **Nota da ideia** (`idea_score`), avaliando problema, solução,
+     viabilidade, impacto, inovação e maturidade, com pontos fortes, fracos e
+     recomendações.
+   - **Prioridade estratégica** da ideia.
+   - Resumo, benefícios, áreas impactadas, próximos passos e um **mini-projeto**
+     pronto para ser levado adiante.
+4. Toda ideia analisada fica registrada e alimenta a **Visão Gerencial**, um
+   painel executivo com métricas, distribuição das ideias por dimensão ESG,
+   ranking das melhores ideias e uma leitura consolidada gerada pela IA.
+
+## 🖥️ Como rodar
 
 ```bash
 npm install
@@ -25,17 +59,17 @@ O banco de dados é o **Supabase** (Postgres). Antes de rodar `npm run dev`:
 Sem essas duas variáveis definidas, as rotas `/api/analyze` e `/api/management`
 retornam erro ao tentar acessar o banco.
 
-## Rotas
+## 🧭 Rotas
 
 - **`/copiloto`** — experiência principal: chat com o Copiloto de ideias. Após a
   investigação contextual, a análise ESG aparece anexada à conversa (painel lateral
   no desktop, bottom sheet no mobile), com acesso ao mini-projeto gerado.
 - **`/visao-gerencial`** — camada de inteligência executiva: métricas, distribuição
   ESG das ideias, ranking editorial das ideias em destaque, leitura da IA e detalhe
-  de cada ideia. Os dados vêm do banco SQLite, populado automaticamente a cada
-  ideia analisada pelo Copiloto — não há mais dados mockados nesta tela.
+  de cada ideia. Os dados vêm do banco Supabase, populado automaticamente a cada
+  ideia analisada pelo Copiloto.
 
-## IA: mock vs. real
+## 🤖 IA: mock vs. real
 
 Toda a lógica de IA passa por `lib/ai/` (`AIProvider`), com implementações:
 
@@ -57,7 +91,7 @@ Todas passam exclusivamente pelas rotas server-side `app/api/chat` e
 no futuro significa apenas implementar a interface `AIProvider` e apontar
 `getAIProvider()` para ela.
 
-## Banco de dados
+## 🗄️ Banco de dados
 
 - **Supabase (Postgres) via [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript/introduction)**
   — mesma conexão em dev e produção, incluindo Vercel (serverless).
@@ -85,7 +119,15 @@ no futuro significa apenas implementar a interface `AIProvider` e apontar
   vazio (`EmptyState`) — assim que a primeira ideia é analisada pelo Copiloto,
   os números aparecem automaticamente.
 
-## Estrutura
+## 🛠️ Stack
+
+- [Next.js 16](https://nextjs.org/) (App Router) + React 19 + TypeScript
+- Tailwind CSS 4
+- Supabase (Postgres) como banco de dados
+- Gemini / Anthropic como provedores de IA (com fallback mock)
+- `lucide-react` para ícones
+
+## 📂 Estrutura
 
 ```
 app/
@@ -110,7 +152,7 @@ supabase/
   migrations/           SQL para criar a tabela `ideas` no projeto Supabase
 ```
 
-## Notas de implementação
+## 📝 Notas de implementação
 
 - Não existe biblioteca de chat de terceiros instalada no projeto original, então
   o chat foi construído como um componente próprio em `components/chat/`, seguindo
