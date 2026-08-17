@@ -1,4 +1,4 @@
-# Évora — Copiloto ESG para a AEVO 🏆
+# Evora — Copiloto ESG para a AEVO 🏆
 
 **Évora** é um copiloto de IA desenvolvido para a **AEVO**, que recebe ideias de
 melhoria enviadas por colaboradores, investiga o contexto por meio de perguntas
