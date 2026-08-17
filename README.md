@@ -1,6 +1,6 @@
 # Evora — Copiloto ESG para a AEVO 🏆
 
-**Évora** é um copiloto de IA desenvolvido para a **AEVO**, que recebe ideias de
+**Evora** é um copiloto de IA desenvolvido para a **AEVO**, que recebe ideias de
 melhoria enviadas por colaboradores, investiga o contexto por meio de perguntas
 direcionadas e converte a ideia em uma oportunidade ESG estruturada — avaliando
 tanto a **qualidade da ideia** quanto o seu **enquadramento ESG** (Ambiental,
@@ -19,7 +19,7 @@ A Évora venceu em ambas as fases:
 - 🏆 **Melhor ideia do campeonato inteiro**, à frente dos projetos das outras
   4 empresas participantes.
 
-## 💡 O que o Évora faz
+## 💡 O que o Evora faz
 
 1. O colaborador descreve uma ideia de melhoria em um chat conversacional.
 2. O copiloto faz perguntas de investigação para entender melhor o contexto,
